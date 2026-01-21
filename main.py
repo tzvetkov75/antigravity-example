@@ -1,44 +1,54 @@
 # Audo added TEXT-123
-# Copyright (c) 2026. All rights reserved.
-# Licensed under the MIT License.
-import algorithms
-import database_operations # type: ignore
+import os
+import mysql.connector
+from users_db import create_users_table, add_user, get_db_connection
 
-
-def example_algorithms():
+def example_users_usage():
     """
-    Demonstrates the usage of bubble sort and binary search.
+    Demonstrates functionality to add users_table and a specific user.
     """
-    # Bubble Sort Example
-    unsorted_data = [64, 34, 25, 12, 22, 11, 90]
-    print(f"Unsorted Array: {unsorted_data}")
-    algorithms.bubble_sort(unsorted_data)
-    print(f"Sorted Array:   {unsorted_data}")
-
-    # Binary Search Example
-    target = 22
-    result = algorithms.binary_search(unsorted_data, target)
-    if result != -1:
-        print(f"Element {target} is present at index {result}")
-    else:
-        print(f"Element {target} is not present in array")
-
-def example_database_operations():
-    """
-    Demonstrates usage of database operations (requires DB credentials).
-    """
-    print("\n--- Database Operations Example ---")
-    connection = database_operations.get_db_connection()
-    if connection:
-        database_operations.create_table_if_not_exists(connection)
-        database_operations.add_user(connection, "PETER PERTERSON", "peter@test.com", "test_password")
-        connection.close()
-    else:
-        print("Skipping database operations (no connection).")
+    print("Connecting to database...")
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        print("Creating users_table if needed...")
+        create_users_table(cursor)
+        
+        print("Adding user PETER PERTERSON...")
+        try:
+            # In a real app, use werkzeug.security.generate_password_hash
+            # For this demo/script, we will simulate it or rely on app.py for proper flow
+            # But let's be consistent if we run this manually:
+            from werkzeug.security import generate_password_hash
+            hashed_pw = generate_password_hash("test_password")
+            add_user(cursor, "PETER PERTERSON", "peter@test.com", hashed_pw)
+            conn.commit()
+            print("User added successfully.")
+        except mysql.connector.Error as err:
+            if err.errno == 1062: # Duplicate entry
+                print("User already exists.")
+            else:
+                print(f"Error adding user: {err}")
+        
+        cursor.close()
+        conn.close()
+    except mysql.connector.Error as err:
+        print(f"Database error: {err}")
+    except Exception as e:
+        print(f"An error occurred: {e}")
 
 def main():
-    example_algorithms()
-    example_database_operations()
+    """
+    Main entry point of the application.
+    """
+    print("Starting application...")
+    # Showcase Cloud SQL User Integration
+    # Ensure environment variables are set before running this in a real environment
+    if os.getenv('DB_HOST'):
+        example_users_usage()
+    else:
+        print("Skipping DB operations: DB_HOST not set.")
 
 if __name__ == "__main__":
     main()

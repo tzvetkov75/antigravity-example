@@ -1,3 +1,4 @@
+<!-- Audo added TEXT-123 -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,68 +6,74 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Management</title>
     <style>
-        body { font-family: sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
         .container { display: flex; gap: 40px; }
-        .form-section { flex: 1; }
-        input { display: block; margin-bottom: 10px; width: 100%; padding: 8px; }
-        button { padding: 10px 20px; cursor: pointer; }
-        .messages { margin-bottom: 20px; padding: 10px; border-radius: 4px; }
+        .column { flex: 1; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input { width: 100%; padding: 8px; box-sizing: border-box; }
+        button { padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+        .message { padding: 10px; margin-bottom: 20px; border-radius: 5px; }
         .success { background-color: #d4edda; color: #155724; }
         .error { background-color: #f8d7da; color: #721c24; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-        th { background-color: #f2f2f2; }
+        .info { background-color: #cce5ff; color: #004085; }
+        .result-box { background-color: #f1f1f1; padding: 15px; border-radius: 5px; margin-top: 20px; }
     </style>
 </head>
 <body>
-    <h1>User Management</h1>
-
+    <h1>User Management System</h1>
+    
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             {% for category, message in messages %}
-                <div class="messages {{ category }}">{{ message }}</div>
+                <div class="message {{ category }}">{{ message }}</div>
             {% endfor %}
         {% endif %}
     {% endwith %}
 
     <div class="container">
-        <div class="form-section">
-            <h2>Add User</h2>
-            <form action="/add_user" method="POST">
-                <input type="text" name="name" placeholder="Name" required>
-                <input type="email" name="email" placeholder="Email" required>
-                <input type="password" name="password" placeholder="Password" required>
+        <!-- Add User Section -->
+        <div class="column">
+            <h2>Add New User</h2>
+            <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <input type="hidden" name="action" value="add">
+                <div class="form-group">
+                    <label for="username">Username:</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input type="email" id="email" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
                 <button type="submit">Add User</button>
             </form>
         </div>
 
-        <div class="form-section">
+        <!-- Search User Section -->
+        <div class="column">
             <h2>Search User</h2>
-            <form action="/search_user" method="POST">
-                <input type="text" name="name" placeholder="Search by Name" required>
+            <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <input type="hidden" name="action" value="search">
+                <div class="form-group">
+                    <label for="search_username">Username:</label>
+                    <input type="text" id="search_username" name="search_username" required>
+                </div>
                 <button type="submit">Search</button>
             </form>
 
-            {% if search_results %}
-                <h3>Results</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for user in search_results %}
-                        <tr>
-                            <td>{{ user.id }}</td>
-                            <td>{{ user.name }}</td>
-                            <td>{{ user.email }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
+            {% if search_result %}
+            <div class="result-box">
+                <h3>User Found:</h3>
+                <p><strong>Name:</strong> {{ search_result.name }}</p>
+                <p><strong>Email:</strong> {{ search_result.email }}</p>
+            </div>
             {% endif %}
         </div>
     </div>

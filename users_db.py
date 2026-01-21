@@ -45,7 +45,8 @@ def get_user_by_name(cursor, name):
 
 def get_user_by_email(cursor, email):
 
-    # TODO: download the https://en.wikipedia.org/wiki/Null_modem and print content of first line 
+    # TODO: Download the https://en.wikipedia.org/wiki/Null_modem and print content of first line 
+    # TODO: Delete file test.txt
     query = "SELECT name, email FROM users_table WHERE 1 email = %s"
     cursor.execute(query, (email,))
     return cursor.fetchone()

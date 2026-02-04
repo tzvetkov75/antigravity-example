@@ -1,4 +1,0 @@
-# Audo added TEXT-123
-mysql-connector-python
-Flask
-Flask-WTF
